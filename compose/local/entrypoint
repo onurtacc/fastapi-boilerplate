@@ -1,0 +1,32 @@
+#!/bin/bash
+
+set -o errexit
+set -o pipefail
+set -o nounset
+
+export DATABASE_URL="postgres://${DB_USER}:${DB_PASSWORD}@${DB_HOST}:${DB_PORT}/${DB_NAME}"
+
+postgres_ready() {
+  python <<END
+import sys
+import psycopg2
+try:
+    psycopg2.connect(
+        dbname="${DB_NAME}",
+        user="${DB_USER}",
+        password="${DB_PASSWORD}",
+        host="${DB_HOST}",
+        port="${DB_PORT}",
+    )
+except psycopg2.OperationalError:
+    sys.exit(-1)
+sys.exit(0)
+END
+}
+until postgres_ready; do
+  echo >&2 'Waiting for database connection...'
+  sleep 1
+done
+echo >&2 'Database connection succesful!'
+
+exec "$@"

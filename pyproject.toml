@@ -1,0 +1,6 @@
+[tool.isort]
+profile = "black"
+known_third_party = ["fastapi", "pydantic", "starlette"]
+
+[tool.mypy]
+strict = true
